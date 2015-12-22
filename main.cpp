@@ -47,6 +47,11 @@ void input_data(data_type *data, int n)
 //输出数据
 void output_data(data_type *data, int n)
 {
+	if (n == 0)
+	{
+		cout << "无内容" << endl;
+		return;
+	}
 	int i;
 	cout << "升序序列为：" << endl;
 	for (i = 0;i < n;i++)
@@ -199,6 +204,11 @@ void delete_bst_node(bst_p *root, data_type data)
 //中序遍历二叉树，得到序列。
 void Inread(bst_p root, int *data_in_order_traverse)
 {
+	if (root == NULL) 
+	{
+		fprintf(stderr, "空树！");
+		return;
+	}
 	if (root->lchild != NULL)
 	{
 		Inread(root->lchild, data_in_order_traverse);
@@ -211,15 +221,17 @@ void Inread(bst_p root, int *data_in_order_traverse)
 }
 
 //折半查找
-int BinSearch1(int k, int order[], int n)     
+int BinSearch1(int k, int *order, int n)     
 {
 	int low, up, mid;
+	int x;
 	low = 0;
 	up = n - 1;
 	while (low <= up)
 	{
 		mid = (low + up) / 2;
-		if (order[mid] == k)
+		x = order[mid];
+		if ( x == k)
 		{
 			return mid;
 		}
@@ -240,6 +252,15 @@ void CreateNum(int a[])
 {
 	srand(time(NULL));
 	for (int i = 0; i < N; i++)
+	{
+		a[i] = rand() % 10000;
+	}
+}
+
+void CreateNum1(int *a, int n)
+{
+	srand(time(NULL));
+	for (int i = 0; i < n; i++)
 	{
 		a[i] = rand() % 10000;
 	}
@@ -306,7 +327,7 @@ void Selection(int *Num, int n)
 	ftime(&endTime);
 }
 
-//快排法
+//快排法  O(nlgn)
 void Quick(int *v, int left, int right)
 {
 	ftime(&startTime);
@@ -377,37 +398,84 @@ void function(int num[])
 int main()
 {
 	data_type *data, *data_in_order_traverse, to_delete;
-	int n, i;
-	bst_t *bst_root;
+	int n, i, k, k1, m;
+	bst_t *bst_root, *bst_root1;
 	int num[N];
 	bool is_countinue = true;
-	char choise;
+	char choise1;
 	cout << "要输入多少个数据？" << endl;
 	cin >> n;
 	data = (data_type*)malloc(n*sizeof(data_type));
 	data_in_order_traverse = (data_type*)malloc(n*sizeof(data_type));
+	/*
 	cout << "请输入数据" << endl;
-	input_data(data, n);
+	*/
+	CreateNum1(data, n);
+	//input_data(data, n);
 	bst_root = NULL;
+	bst_root1 = NULL;
 	for (i = 0;i < n;i++)
 	{
 		insert_bst_node(&bst_root, data[i]);
 	}//创建查找二叉树完毕
-	Inread(bst_root, data_in_order_traverse);
-	count_i = 0;
-	output_data(data_in_order_traverse, n);
-	cout << "请输入想要删除的节点" << endl;
-	cin >> to_delete;
-	delete_bst_node(&bst_root, to_delete);
-	Inread(bst_root, data_in_order_traverse);
-	output_data(data_in_order_traverse, n-1);
-	CreateNum(num);
 	while (is_countinue)
 	{
-		function(num);
-		cout << "继续？<y/n>/n" << endl;
-		cin >> choise;
-		if (choise == 'n' || choise == 'N')
+		cout << "1--中序遍历" << endl;
+		cout << "2--查找节点" << endl;
+		cout << "3--在序列中查找" << endl;
+		cout << "4--插入" << endl;
+		cout << "5--删除" << endl;
+		int choice;
+		cout << "输入你的选择" << endl;
+		cin >> choice;
+		switch (choice)
+		{
+		case 1:
+			Inread(bst_root, data_in_order_traverse);
+			count_i = 0;
+			output_data(data_in_order_traverse, n);
+			break;
+		case 2:
+			cout << "输入你想要查找的数据" << endl;
+			cin >> k;
+			bst_root1 = search(bst_root, k);
+			if (bst_root1)
+			{
+				cout << "查找成功" << endl;
+			}
+			else
+			{
+				cout << "查找失败" << endl;
+			}
+			break;
+		case 3:
+			cout << "输入你想要查找的数据" << endl;
+			cin >> k1;
+			m = BinSearch1(k1, data_in_order_traverse, n);
+			if (m != -1)
+				cout << "他的位置是：" << m << endl;
+			else
+				cout << "此元素不在数组中" << endl;
+			break;
+		case 4:
+			cout << "请输入想要插入的节点" << endl;
+			cin >> to_delete;
+			insert_bst_node(&bst_root, to_delete);
+			break;
+		case 5:
+			cout << "请输入想要删除的节点" << endl;
+			cin >> to_delete;
+			delete_bst_node(&bst_root, to_delete);
+			Inread(bst_root, data_in_order_traverse);
+			output_data(data_in_order_traverse, n - 1);
+			break;
+		default:
+			cout << "Quit";
+			exit(0);
+		}
+		cout << "继续？<y/n>" << endl;
+		cin >> choise1;
+		if (choise1 == 'n' || choise1 == 'N')
 			is_countinue = false;
 	}
 	return 0;
